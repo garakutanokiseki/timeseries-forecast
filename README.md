@@ -15,6 +15,11 @@ But here you give only timeseries and m and you are done.
 
 To understand (p, d, q), (P,D,Q,m) : got through https://otexts.com/fpp2/arima.html ( very nice book) 
 
+# All you need to care about, a time series , m , seasonal:
+Time-Series : make sure the timeseries is anomaly free- ARIMA can't deal with anomalies.
+seasonal- if the data is seasonal, put this falg as true , otherwise false
+example- data is stock price for every hour ( seasonality can be assumed to be true and m = 24)
+m - period of seasonality
 
 # Timeseries-Forecast
 
@@ -35,20 +40,23 @@ import com.workday.insights.timeseries.arima.struct.ForecastResult;
 double[] dataArray = new double[] {2, 1, 2, 5, 2, 1, 2, 5, 2, 1, 2, 5, 2, 1, 2, 5};
 
 // Set ARIMA model parameters.
-int p = 3;
-int d = 0;
-int q = 3;
-int P = 1;
-int D = 1;
-int Q = 0;
-int m = 0;
-int forecastSize = 1;
+int max_p = 5;
+int max_d = 2;
+int max_q = 5;
+int max_P = 2;
+int max_D = 1;
+int max_Q = 2;
 
-// Obtain forecast result. The structure contains forecasted values and performance metric etc.
-ForecastResult forecastResult = Arima.forecast_arima(dataArray, forecastSize, p, d, q, P, D, Q, m);
+//default seasonal is true , default maxIterations is 100.
 
-// Read forecast values
-double[] forecastData = forecastResult.getForecast(); // in this example, it will return { 2 }
+final ArimaParams paramsForecast = ArimaAutoFit.autoFit(anomFreeMetrics, maxp, maxd, maxq, maxP, maxD, maxQ, m, seasonal, maxIterations);
+
+// estimate ARIMA model parameters for forecasting
+final ArimaModel fittedModel = ArimaSolver.estimateARIMA(
+        paramsForecast, data, data.length, data.length + 1);
+
+final ForecastResult forecastResult = fittedModel.forecast(forecastSize);
+
 
 // You can obtain upper- and lower-bounds of confidence intervals on forecast values.
 // By default, it computes at 95%-confidence level. This value can be adjusted in ForecastUtil.java
