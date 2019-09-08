@@ -1,6 +1,6 @@
 This is for someone looking to solve Timeseries forecasting in java.It is a miniature version of the ARIMA forecast in R ( miniature becasue it does not give you enough flexibilites unlike R) but solves the purpose of forecasting without assuming any hyperparameters for ARIMA. 
 
-This simply means just give me timeseries and the period of repition, I will give you the forecast.
+This simply means just give me timeseries and the period of repition, it will give you the forecast.
 
 If you don't understand period of forecast , look at this : https://robjhyndman.com/hyndsight/seasonal-periods/
 
