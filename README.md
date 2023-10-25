@@ -1,3 +1,26 @@
+This is for someone looking to solve Timeseries forecasting in java.It is a miniature version of the ARIMA forecast in R ( miniature becasue it does not give you enough flexibilites unlike R) but solves the purpose of forecasting without assuming any hyperparameters for ARIMA. 
+
+This simply means just give me timeseries and the period of repition, it will give you the forecast.
+
+If you don't understand period of forecast , look at this : https://robjhyndman.com/hyndsight/seasonal-periods/
+
+# What I have done new in this repo is:
+
+I have implemented ARIMA AUTO FIT method like this here https://www.rdocumentation.org/packages/forecast/versions/8.5/topics/auto.arima in java
+
+# Timeseries-Forecast using ARIMA + auto fit arima
+This repository is forked from https://github.com/Workday/timeseries-forecast where Workday has writen ARIMA forecst in java.
+But he did not write the rich Auto fit algorithm and instead demanded (p, d, q), (P,D,Q,m) from the user.
+But here you give only timeseries and m and you are done.
+
+To understand (p, d, q), (P,D,Q,m) : got through https://otexts.com/fpp2/arima.html ( very nice book) 
+
+# All you need to care about, a time series , m , seasonal:
+Time-Series : make sure the timeseries is anomaly free- ARIMA can't deal with anomalies.
+seasonal- if the data is seasonal, put this falg as true , otherwise false
+example- data is stock price for every hour ( seasonality can be assumed to be true and m = 24)
+m - period of seasonality
+
 # Timeseries-Forecast
 
 This is a Java open source library which provides a time series forecasting functionality. It is an implementation of the [Hannan-Rissanen algorithm](http://www.jstor.org/stable/2241884?seq=1#page_scan_tab_contents "Paper") for additive [ARIMA](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average "Wiki") models. This library is published by the Workday's Syman team, and is used to support basic timeseries forecasting functionalities in some of the Workday products.
@@ -17,20 +40,23 @@ import com.workday.insights.timeseries.arima.struct.ForecastResult;
 double[] dataArray = new double[] {2, 1, 2, 5, 2, 1, 2, 5, 2, 1, 2, 5, 2, 1, 2, 5};
 
 // Set ARIMA model parameters.
-int p = 3;
-int d = 0;
-int q = 3;
-int P = 1;
-int D = 1;
-int Q = 0;
-int m = 0;
-int forecastSize = 1;
+int max_p = 5;
+int max_d = 2;
+int max_q = 5;
+int max_P = 2;
+int max_D = 1;
+int max_Q = 2;
 
-// Obtain forecast result. The structure contains forecasted values and performance metric etc.
-ForecastResult forecastResult = Arima.forecast_arima(dataArray, forecastSize, p, d, q, P, D, Q, m);
+//default seasonal is true , default maxIterations is 100.
 
-// Read forecast values
-double[] forecastData = forecastResult.getForecast(); // in this example, it will return { 2 }
+final ArimaParams paramsForecast = ArimaAutoFit.autoFit(anomFreeMetrics, maxp, maxd, maxq, maxP, maxD, maxQ, m, seasonal, maxIterations);
+
+// estimate ARIMA model parameters for forecasting
+final ArimaModel fittedModel = ArimaSolver.estimateARIMA(
+        paramsForecast, data, data.length, data.length + 1);
+
+final ForecastResult forecastResult = fittedModel.forecast(forecastSize);
+
 
 // You can obtain upper- and lower-bounds of confidence intervals on forecast values.
 // By default, it computes at 95%-confidence level. This value can be adjusted in ForecastUtil.java
@@ -73,13 +99,13 @@ Dependencies
 
 The library has the following dependencies:
 ```
-JUnit 4.12
+JUnit 4.12, jama
 ```
 
 Authors
 ---
 
-Here is the [Contributors List](CONTRIBUTORS.md) for the timeseries-forecast library.
+Here is the [Contributors List](CONTRIBUTORS.md) for the timeseries-forecast library + me ( Amandeep Arora)
 Please note that the project was developed and ported from an internal repository. Therefore, the commit record does not reflect the full history of the project.
 
 License
