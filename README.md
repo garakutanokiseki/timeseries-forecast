@@ -99,7 +99,10 @@ Dependencies
 
 The library has the following dependencies:
 ```
-JUnit 4.12, jama
+JUnit 4.12
+implementation 'gov.nist.math:jama:1.0.3'
+implementation 'org.apache.commons:commons-math3:3.6.1'
+implementation 'org.apache.commons:commons-lang3:3.11'
 ```
 
 Authors

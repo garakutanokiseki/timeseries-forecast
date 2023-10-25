@@ -3,7 +3,6 @@ package com.workday.insights.timeseries.arima;
 
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,6 +1,8 @@
 package com.workday.insights.timeseries.arima;
 
-import com.spr.intuition.ds.Quadruple;
+import com.workday.insights.timeseries.arima.struct.ArimaModel;
+import com.workday.insights.timeseries.arima.struct.ArimaParams;
+import com.workday.insights.timeseries.quadruple.Quadruple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +65,7 @@ public class ArimaAutoFit {
         // can't return model from here, D and d are not set in it.
         ArimaModel model = findBestARMAModel(diffedTs, maxp, maxq, maxP, maxQ, m, seasonal, maxIterations);
         if (model == null) {
-            return new ArimaParams(0, dOpt, 0, 0, D, 0, m, true);
+            return new ArimaParams(0, dOpt, 0, 0, D, 0, m);
         }
         return new ArimaParams(model.getParams().p, dOpt, model.getParams().q, model.getParams().P, D, model.getParams().Q, m);
     }
@@ -133,15 +135,15 @@ public class ArimaAutoFit {
 
         List<Quadruple<Integer, Integer, Integer, Integer>> nextParams = new ArrayList<>();
         for (Quadruple<Integer, Integer, Integer, Integer> entry : initialpqPQValues) {
-            nextParams.add(Quadruple.of(entry.getV1(), entry.getV2(), entry.getV3(), entry.getV4()));
+            nextParams.add(Quadruple.of(entry.getLeft(), entry.getMiddleLeft(), entry.getMiddleRight(), entry.getRight()));
         }
 
         while (!done) {
             pastParams.addAll(nextParams);
             List<ArimaModel> models = new ArrayList<>();
             for (Quadruple<Integer, Integer, Integer, Integer> params : nextParams) {
-                boolean includeConstant = params.getV1() == 0 && params.getV2() == 0 && params.getV3() == 0 && params.getV4() == 0;
-                ArimaParams newArimaParams = new ArimaParams(params.getV1(), 0, params.getV2(), seasonal ? params.getV3() : 0, 0, seasonal ? params.getV4() : 0, m, includeConstant);
+                boolean includeConstant = params.getLeft() == 0 && params.getMiddleLeft() == 0 && params.getMiddleRight() == 0 && params.getRight() == 0;
+                ArimaParams newArimaParams = new ArimaParams(params.getLeft(), 0, params.getMiddleLeft(), seasonal ? params.getMiddleRight() : 0, 0, seasonal ? params.getRight() : 0, m);
                 try {
                     models.add(ArimaSolver.estimateARIMA(newArimaParams, diffedTs, diffedTs.length, diffedTs.length + 1));
                 } catch (Exception e) {
@@ -181,8 +183,8 @@ public class ArimaAutoFit {
                         }
                     }
                 }
-                nextParams = surroundingParams.stream().filter(params -> !pastParams.contains(params) && params.getV1() >= 0
-                        && params.getV1() <= maxp && params.getV2() >= 0 && params.getV2() <= maxq).collect(Collectors.toList());
+                nextParams = surroundingParams.stream().filter(params -> !pastParams.contains(params) && params.getLeft() >= 0
+                        && params.getLeft() <= maxp && params.getMiddleLeft() >= 0 && params.getMiddleLeft() <= maxq).collect(Collectors.toList());
 
             } else {
                 if (iterations > maxIterations) {
@@ -214,8 +216,8 @@ public class ArimaAutoFit {
                 surroundingParams.add(Quadruple.of(p - 1, q - 1, P, Q));
                 surroundingParams.add(Quadruple.of(p + 1, q + 1, P, Q));
 
-                nextParams = surroundingParams.stream().filter(params -> !pastParams.contains(params) && params.getV1() >= 0
-                        && params.getV1() <= maxp && params.getV2() >= 0 && params.getV2() <= maxq && params.getV3() >= 0 && params.getV3() <= maxP && params.getV4() >= 0 && params.getV4() <= maxQ).collect(Collectors.toList());
+                nextParams = surroundingParams.stream().filter(params -> !pastParams.contains(params) && params.getLeft() >= 0
+                        && params.getLeft() <= maxp && params.getMiddleLeft() >= 0 && params.getMiddleLeft() <= maxq && params.getMiddleRight() >= 0 && params.getMiddleRight() <= maxP && params.getRight() >= 0 && params.getRight() <= maxQ).collect(Collectors.toList());
 
             }
         }

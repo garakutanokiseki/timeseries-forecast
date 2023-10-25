@@ -1,9 +1,11 @@
 package com.workday.insights.timeseries.arima;
 
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
-import Jama.*;
 
 import java.util.Arrays;
+
+import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 
 /**
  * Created by amandeeparora on 13/11/18.
